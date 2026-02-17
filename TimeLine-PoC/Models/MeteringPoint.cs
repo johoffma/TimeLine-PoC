@@ -12,15 +12,17 @@ namespace TimeLine_PoC.Models
     {
         public MeteringPoint()
         {
-            Periods = new List<MeteringPointPeriod>();
+            MPPs = new List<MeteringPointPeriod>();
+            CRs = new List<CommercialRelation>();
         }
-        public List<MeteringPointPeriod> Periods { get; }
+        public List<MeteringPointPeriod> MPPs { get; }
+        public List<CommercialRelation> CRs { get; }
 
         // Centralized sorted view:
         // Order by ValidFrom ascending, then by CreatedAt so that
         // when ValidFrom values are equal the period with the lowest CreatedAt comes first.
         private List<MeteringPointPeriod> GetSortedPeriods()
-            => Periods.OrderBy(p => p.ValidFrom).ThenBy(p => p.CreatedAt).ToList();
+            => MPPs.OrderBy(p => p.ValidFrom).ThenBy(p => p.CreatedAt).ToList();
 
         public MeteringPointPeriod? GetPrevious(MeteringPointPeriod current)
         {
@@ -57,58 +59,75 @@ namespace TimeLine_PoC.Models
 
         public void Apply(CreateMeteringPointEvent input)
         {
-            var period = new MeteringPointPeriod(
+            var mpp = new MeteringPointPeriod(
                 this,
                 input.CreatedAt,
                 input.ValidityDate,
                 input.ConnectionState,
                 input.AddressLine,
                 input.Resolution);
-            Periods.Add(period);
+            MPPs.Add(mpp);
         }
 
         public void Apply(ConnectMeteringPointEvent input)
         {
-            var period = new MeteringPointPeriod(
+            var mpp = new MeteringPointPeriod(
                 this,
                 input.CreatedAt,
                 input.ValidityDate,
                  connectionState: "Connected");
-            Periods.Add(period);
+            MPPs.Add(mpp);
         }
 
         public void Apply(UpdateMeteringPointEvent input)
         {
-            var period = new MeteringPointPeriod(
+            var mpp = new MeteringPointPeriod(
                 this,
                 input.CreatedAt,
                 input.ValidityDate,
                 null,
                 input.AddressLine,
                 input.Resolution);
-            Periods.Add(period);
+            MPPs.Add(mpp);
         }
 
         public void Apply(DisconnectMeteringPointEvent input)
         {
-            var period = new MeteringPointPeriod(
+            var mpp = new MeteringPointPeriod(
                 this,
                 input.CreatedAt,
                 input.ValidityDate,
                 connectionState: "Disconnected");
-            Periods.Add(period);
+            MPPs.Add(mpp);
         }
 
         public void Apply(ReConnectMeteringPointEvent input)
         {
-            var period = new MeteringPointPeriod(
+            var mpp = new MeteringPointPeriod(
                 this,
                 input.CreatedAt,
                 input.ValidityDate, 
                 connectionState: "Connected");
-            Periods.Add(period);
+            MPPs.Add(mpp);
         }
 
+        public void Apply(MoveInEvent input)
+        {
+            var cr = new CommercialRelation(
+                this,
+                input.CreatedAt,
+                input.ValidityDate,
+                input.EnergySupplierId,
+                Reason.PrimaryMoveIn);
+
+            /*
+            var esp = new EnergySupplierPeriod(
+                cr,
+                input.CreatedAt,
+                input.ValidityDate);
+            */
+            CRs.Add(cr);
+        }
 
         // Prints periods in chronological order (by ValidFrom) to Console.
         // Overload accepting a TextWriter is provided for testability / redirection.
