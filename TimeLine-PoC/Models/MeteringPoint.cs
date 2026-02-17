@@ -67,6 +67,16 @@ namespace TimeLine_PoC.Models
             Periods.Add(period);
         }
 
+        public void Apply(ConnectMeteringPointEvent input)
+        {
+            var period = new MeteringPointPeriod(
+                this,
+                input.CreatedAt,
+                input.ValidityDate,
+                 connectionState: "Connected");
+            Periods.Add(period);
+        }
+
         public void Apply(UpdateMeteringPointEvent input)
         {
             var period = new MeteringPointPeriod(
