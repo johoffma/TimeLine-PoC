@@ -1,30 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TimeLine_PoC.Models
 {
-    public class EnergySupplierPeriod 
+    public class EnergySupplierPeriod : Period<CommercialRelation>
     {
-        /*
         public EnergySupplierPeriod(
-            CommercialRelation cr,
+            CommercialRelation commercialRelation,
             DateTime createdAt,
-            DateTime validFrom) : base(cr, createdAt)
+            DateTime validFrom) : base(commercialRelation, createdAt)
         {
             ValidFrom = validFrom;
         }
+
         public DateTime ValidFrom { get; }
-        public DateTime ValidTo { get; }
-        //public DateTime? ValidTo
-        //{
-        //    get
-        //    {
-        //        return MeteringPoint.GetNextValidFrom(this);
-        //    }
-        //}
-        */
+
+        // ValidTo is determined from the owning CommercialRelation's sibling EnergySupplierPeriods
+        public DateTime? ValidTo => Parent.GetNextValidFrom(this);
     }
 }

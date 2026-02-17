@@ -2,15 +2,16 @@
 
 namespace TimeLine_PoC.Models
 {
-    public abstract class Period
+    public abstract class Period<TParent>
     {
-        protected Period(MeteringPoint meteringPoint, DateTime createdAt)
+        protected Period(TParent parent, DateTime createdAt)
         {
+            Parent = parent ?? throw new ArgumentNullException(nameof(parent));
             CreatedAt = createdAt;
-            MeteringPoint = meteringPoint ?? throw new ArgumentNullException(nameof(meteringPoint));
         }
+
         public DateTime CreatedAt { get; private set; }
 
-        internal MeteringPoint MeteringPoint { get; }
+        internal TParent Parent { get; }
     }
 }
