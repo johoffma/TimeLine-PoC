@@ -55,6 +55,13 @@ namespace TimeLine_PoC
                     mp.Apply(mi);
                     break;
 
+                case UpdateCustomerEvent uc:
+                    Console.WriteLine($"  EnergySupplierId: {uc.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Customer        : {uc.Customer ?? "<null>"}");
+                    Console.WriteLine($"  CustomerAddress : {uc.CustomerAddress ?? "<null>"}");
+                    mp.Apply(uc);
+                    break;
+
                 default:
                     throw new InvalidOperationException($"Unsupported event type: {ev.GetType().FullName}");
             }
@@ -122,7 +129,7 @@ namespace TimeLine_PoC
                 var cr = sortedCr[crIndex];
                 var sortedEsps = cr.EnergySupplierPeriods
                     .OrderBy(e => e.ValidFrom)
-                    .ThenByDescending(e => e.CreatedAt)
+                    .ThenBy(e => e.CreatedAt)
                     .ToList();
 
                 for (var j = 0; j < sortedEsps.Count; j++)

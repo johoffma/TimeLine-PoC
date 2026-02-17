@@ -177,6 +177,19 @@ namespace TimeLine_PoC.Models
             cr.EnergySupplierPeriods.Add(esp);
         }
 
+        public void Apply(UpdateCustomerEvent input)
+        { 
+            // Find the CommercialRelation that is active at input.ValidityDate and update it with a new EnergySupplierPeriod.
+            var cr = GetSortedCommercialRelations()
+                .LastOrDefault(cr => cr.ValidFrom <= input.ValidityDate);
+            if (cr == null)
+            {
+                throw new InvalidOperationException("No active CommercialRelation found for the given ValidityDate.");
+            }
+            var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer, customerAddress: input.CustomerAddress);
+            cr.EnergySupplierPeriods.Add(esp);
+        }
+
         // Prints periods in chronological order (by ValidFrom) to Console.
         // Overload accepting a TextWriter is provided for testability / redirection.
         public void PrintPeriods() => PrintPeriods(Console.Out);

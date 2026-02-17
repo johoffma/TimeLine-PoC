@@ -25,9 +25,9 @@ namespace TimeLine_PoC.Models
         // Energy supplier periods that belong to this commercial relation
         public List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
 
-        // Sorted view: by ValidFrom ascending, tie-breaker: CreatedAt descending (newest first)
+        // Sorted view: by ValidFrom ascending, tie-breaker: CreatedAt ascending
         internal List<EnergySupplierPeriod> GetSortedEnergySupplierPeriods()
-            => EnergySupplierPeriods.OrderBy(p => p.ValidFrom).ThenByDescending(p => p.CreatedAt).ToList();
+            => EnergySupplierPeriods.OrderBy(p => p.ValidFrom).ThenBy(p => p.CreatedAt).ToList();
 
         public EnergySupplierPeriod? GetPrevious(EnergySupplierPeriod current)
         {

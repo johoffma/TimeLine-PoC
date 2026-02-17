@@ -28,6 +28,15 @@ internal class Program
             "Anne"
             ));
 
+        Visualizer.ApplyAndVisualize(mp1, new UpdateCustomerEvent(
+            "mp1",
+            new DateTime(2024, 1, 1),
+            "Supplier1",
+            "Anne",
+            "Address 1"
+            ));
+
+
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
             new DateTime(2024, 2, 2),
