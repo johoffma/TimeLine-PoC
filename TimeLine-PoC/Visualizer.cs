@@ -24,15 +24,15 @@ namespace TimeLine_PoC
             switch (ev)
             {
                 case CreateMeteringPointEvent c:
-                    Console.WriteLine($"  ConnectionState: {c.ConnectionState}");
-                    Console.WriteLine($"  AddressLine    : {c.AddressLine ?? "<null>"}");
-                    Console.WriteLine($"  Resolution     : {c.Resolution ?? "<null>"}");
+                    Console.WriteLine($"  ConnectionState  : {c.ConnectionState}");
+                    Console.WriteLine($"  AddressLine      : {c.AddressLine ?? "<null>"}");
+                    Console.WriteLine($"  Resolution       : {c.Resolution ?? "<null>"}");
                     mp.Apply(c);
                     break;
 
                 case UpdateMeteringPointEvent u:
-                    Console.WriteLine($"  AddressLine    : {u.AddressLine ?? "<null>"}");
-                    Console.WriteLine($"  Resolution     : {u.Resolution ?? "<null>"}");
+                    Console.WriteLine($"  AddressLine      : {u.AddressLine ?? "<null>"}");
+                    Console.WriteLine($"  Resolution       : {u.Resolution ?? "<null>"}");
                     mp.Apply(u);
                     break;
 
@@ -48,6 +48,12 @@ namespace TimeLine_PoC
                     mp.Apply(co);
                     break;
 
+                case MoveInEvent pmi:
+                    Console.WriteLine($"  EnergySupplierId : {pmi.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Reason           : {pmi.Reason.ToString() ?? "<null>"}");
+                    mp.Apply(pmi);
+                    break;
+
                 default:
                     throw new InvalidOperationException($"Unsupported event type: {ev.GetType().FullName}");
             }
@@ -56,7 +62,115 @@ namespace TimeLine_PoC
             Console.WriteLine();
             Console.WriteLine("Current periods (ordered by ValidFrom):");
             mp.PrintPeriods();
+
+            Console.WriteLine();
+            Console.WriteLine("Commercial relations (and underlying EnergySupplierPeriods):");
+            PrintCommercialRelationsAndEnergySupplierPeriods(mp);
+
             Console.ReadLine();
+        }
+
+        private static void PrintCommercialRelationsAndEnergySupplierPeriods(MeteringPoint mp)
+        {
+            if (mp == null) throw new ArgumentNullException(nameof(mp));
+
+            // Sort CommercialRelations by ValidFrom asc, CreatedAt desc (newest for ties)
+            var sortedCr = mp.CRs
+                .OrderBy(cr => cr.ValidFrom)
+                .ThenByDescending(cr => cr.CreatedAt)
+                .ToList();
+
+            if (!sortedCr.Any())
+            {
+                Console.WriteLine("  No commercial relations.");
+                return;
+            }
+
+            // Build CR table
+            var crRows = new List<string[]>();
+            crRows.Add(new[] { "#", "ValidFrom", "ValidTo", "CreatedAt", "EnergySupplierId", "Reason" });
+
+            for (var i = 0; i < sortedCr.Count; i++)
+            {
+                var cr = sortedCr[i];
+                var validTo = (i == sortedCr.Count - 1) ? DateTime.MaxValue : sortedCr[i + 1].ValidFrom;
+                var validToText = validTo == DateTime.MaxValue ? "MaxValue" : validTo.ToString("O");
+
+                crRows.Add(new[]
+                {
+                    (i + 1).ToString(),
+                    cr.ValidFrom.ToString("O"),
+                    validToText,
+                    cr.CreatedAt.ToString("O"),
+                    cr.EnergySupplierId ?? "<null>",
+                    cr.Reason.ToString()
+                });
+            }
+
+            FormatTable(Console.Out, crRows);
+            Console.WriteLine();
+
+            // Build EnergySupplierPeriod table (flat view) with reference to parent CR index
+            var espRows = new List<string[]>();
+            espRows.Add(new[] { "#", "CR#", "ValidFrom", "ValidTo", "CreatedAt" });
+
+            var espIndex = 0;
+            for (var crIndex = 0; crIndex < sortedCr.Count; crIndex++)
+            {
+                var cr = sortedCr[crIndex];
+                var sortedEsps = cr.EnergySupplierPeriods
+                    .OrderBy(e => e.ValidFrom)
+                    .ThenByDescending(e => e.CreatedAt)
+                    .ToList();
+
+                for (var j = 0; j < sortedEsps.Count; j++)
+                {
+                    var esp = sortedEsps[j];
+                    var espValidTo = cr.GetNextValidFrom(esp);
+                    var espValidToText = espValidTo == DateTime.MaxValue ? "MaxValue" : espValidTo.ToString("O");
+
+                    espIndex++;
+                    espRows.Add(new[]
+                    {
+                        espIndex.ToString(),
+                        (crIndex + 1).ToString(),
+                        esp.ValidFrom.ToString("O"),
+                        espValidToText,
+                        esp.CreatedAt.ToString("O")
+                    });
+                }
+            }
+
+            if (espRows.Count == 1)
+            {
+                Console.WriteLine("  No EnergySupplierPeriods.");
+            }
+            else
+            {
+                FormatTable(Console.Out, espRows);
+            }
+        }
+
+        private static void FormatTable(System.IO.TextWriter writer, List<string[]> rows)
+        {
+            if (rows == null || rows.Count == 0) return;
+
+            var columns = rows[0].Length;
+            var widths = new int[columns];
+            for (var c = 0; c < columns; c++)
+            {
+                widths[c] = rows.Max(r => r[c]?.Length ?? 0);
+            }
+
+            string FormatRow(string[] row) =>
+                string.Join("  ", Enumerable.Range(0, columns).Select(c => (row[c] ?? string.Empty).PadRight(widths[c])));
+
+            writer.WriteLine(FormatRow(rows[0]));
+            writer.WriteLine(string.Join("  ", Enumerable.Range(0, columns).Select(c => new string('-', widths[c]))));
+            for (var r = 1; r < rows.Count; r++)
+            {
+                writer.WriteLine(FormatRow(rows[r]));
+            }
         }
     }
 }

@@ -120,12 +120,12 @@ namespace TimeLine_PoC.Models
                 input.EnergySupplierId,
                 Reason.PrimaryMoveIn);
 
-            /*
             var esp = new EnergySupplierPeriod(
                 cr,
                 input.CreatedAt,
                 input.ValidityDate);
-            */
+
+            cr.EnergySupplierPeriods.Add(esp);
             CRs.Add(cr);
         }
 

@@ -20,6 +20,21 @@ internal class Program
             "PH1H"));
 
 
+        Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
+            "mp1",
+            new DateTime(2024, 1, 10),
+            "Supplier1",
+            Reason.PrimaryMoveIn
+            ));
+
+        Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
+            "mp1",
+            new DateTime(2024, 2, 1),
+            "Supplier1",
+            Reason.PrimaryMoveIn
+            ));
+
+        /*
         Visualizer.ApplyAndVisualize(mp1, new ConnectMeteringPointEvent(
             "mp1",
             new DateTime(2024, 1, 15)));
@@ -46,6 +61,8 @@ internal class Program
             "mp1",
             new DateTime(2024, 2, 15),
             addressLine: "Address 3"));
+
+        */
     }
 
 }
