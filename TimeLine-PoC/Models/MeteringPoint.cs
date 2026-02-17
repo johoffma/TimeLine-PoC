@@ -57,6 +57,35 @@ namespace TimeLine_PoC.Models
             return sortedPeriods[currentIndex + 1].ValidFrom;
         }
 
+        // --- CommercialRelation helpers (new) ---
+        private List<CommercialRelation> GetSortedCommercialRelations()
+            => CRs.OrderBy(cr => cr.ValidFrom).ThenByDescending(cr => cr.CreatedAt).ToList();
+
+        public CommercialRelation? GetPrevious(CommercialRelation current)
+        {
+            var sorted = GetSortedCommercialRelations();
+            var idx = sorted.IndexOf(current);
+            if (idx <= 0) return null;
+            return sorted[idx - 1];
+        }
+
+        public CommercialRelation? GetNext(CommercialRelation current)
+        {
+            var sorted = GetSortedCommercialRelations();
+            var idx = sorted.IndexOf(current);
+            if (idx == -1 || idx >= sorted.Count - 1) return null;
+            return sorted[idx + 1];
+        }
+
+        public DateTime GetNextValidFrom(CommercialRelation current)
+        {
+            var sorted = GetSortedCommercialRelations();
+            var idx = sorted.IndexOf(current);
+            if (idx == -1) throw new InvalidOperationException("CommercialRelation not found.");
+            if (idx == sorted.Count - 1) return DateTime.MaxValue;
+            return sorted[idx + 1].ValidFrom;
+        }
+
         public void Apply(CreateMeteringPointEvent input)
         {
             var mpp = new MeteringPointPeriod(
@@ -120,13 +149,11 @@ namespace TimeLine_PoC.Models
                 input.EnergySupplierId,
                 Reason.PrimaryMoveIn);
 
-            var esp = new EnergySupplierPeriod(
-                cr,
-                input.CreatedAt,
-                input.ValidityDate);
-
-            cr.EnergySupplierPeriods.Add(esp);
             CRs.Add(cr);
+
+            // Example: create associated EnergySupplierPeriod and add to CR if desired:
+            var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate);
+            cr.EnergySupplierPeriods.Add(esp);
         }
 
         // Prints periods in chronological order (by ValidFrom) to Console.

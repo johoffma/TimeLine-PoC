@@ -22,10 +22,10 @@ namespace TimeLine_PoC.Models
         public string EnergySupplierId { get; }
         public Reason Reason { get; }
 
-        // collection of EnergySupplierPeriod instances belonging to this commercial relation
+        // Energy supplier periods that belong to this commercial relation
         public List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
 
-        // Sorted view: by ValidFrom ascending, tie-breaker: CreatedAt descending (newest created first)
+        // Sorted view: by ValidFrom ascending, tie-breaker: CreatedAt descending (newest first)
         internal List<EnergySupplierPeriod> GetSortedEnergySupplierPeriods()
             => EnergySupplierPeriods.OrderBy(p => p.ValidFrom).ThenByDescending(p => p.CreatedAt).ToList();
 
@@ -45,8 +45,7 @@ namespace TimeLine_PoC.Models
             return sorted[idx + 1];
         }
 
-        // Returns the ValidFrom of the next EnergySupplierPeriod; DateTime.MaxValue if this is the last period.
-        // Throws if current not found.
+        // Next ValidFrom for EnergySupplierPeriod siblings
         public DateTime GetNextValidFrom(EnergySupplierPeriod current)
         {
             var sorted = GetSortedEnergySupplierPeriods();
@@ -54,6 +53,15 @@ namespace TimeLine_PoC.Models
             if (idx == -1) throw new InvalidOperationException("EnergySupplierPeriod not found.");
             if (idx == sorted.Count - 1) return DateTime.MaxValue;
             return sorted[idx + 1].ValidFrom;
+        }
+
+        // ValidTo of this CommercialRelation is determined by the next CommercialRelation on the MeteringPoint
+        public DateTime ValidTo
+        {
+            get
+            {
+                return Parent.GetNextValidFrom(this);
+            }
         }
     }
 }

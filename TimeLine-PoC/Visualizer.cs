@@ -24,15 +24,15 @@ namespace TimeLine_PoC
             switch (ev)
             {
                 case CreateMeteringPointEvent c:
-                    Console.WriteLine($"  ConnectionState  : {c.ConnectionState}");
-                    Console.WriteLine($"  AddressLine      : {c.AddressLine ?? "<null>"}");
-                    Console.WriteLine($"  Resolution       : {c.Resolution ?? "<null>"}");
+                    Console.WriteLine($"  ConnectionState: {c.ConnectionState}");
+                    Console.WriteLine($"  AddressLine    : {c.AddressLine ?? "<null>"}");
+                    Console.WriteLine($"  Resolution     : {c.Resolution ?? "<null>"}");
                     mp.Apply(c);
                     break;
 
                 case UpdateMeteringPointEvent u:
-                    Console.WriteLine($"  AddressLine      : {u.AddressLine ?? "<null>"}");
-                    Console.WriteLine($"  Resolution       : {u.Resolution ?? "<null>"}");
+                    Console.WriteLine($"  AddressLine    : {u.AddressLine ?? "<null>"}");
+                    Console.WriteLine($"  Resolution     : {u.Resolution ?? "<null>"}");
                     mp.Apply(u);
                     break;
 
@@ -48,10 +48,10 @@ namespace TimeLine_PoC
                     mp.Apply(co);
                     break;
 
-                case MoveInEvent pmi:
-                    Console.WriteLine($"  EnergySupplierId : {pmi.EnergySupplierId ?? "<null>"}");
-                    Console.WriteLine($"  Reason           : {pmi.Reason.ToString() ?? "<null>"}");
-                    mp.Apply(pmi);
+                case MoveInEvent mi:
+                    Console.WriteLine($"  AddressLine    : {mi.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Resolution     : {mi.Reason.ToString() ?? "<null>"}");
+                    mp.Apply(mi);
                     break;
 
                 default:
@@ -86,21 +86,21 @@ namespace TimeLine_PoC
                 return;
             }
 
-            // Build CR table
+            // Build CR table (use CR.ValidTo property)
             var crRows = new List<string[]>();
             crRows.Add(new[] { "#", "ValidFrom", "ValidTo", "CreatedAt", "EnergySupplierId", "Reason" });
 
             for (var i = 0; i < sortedCr.Count; i++)
             {
                 var cr = sortedCr[i];
-                var validTo = (i == sortedCr.Count - 1) ? DateTime.MaxValue : sortedCr[i + 1].ValidFrom;
-                var validToText = validTo == DateTime.MaxValue ? "MaxValue" : validTo.ToString("O");
+                var crValidTo = cr.ValidTo;
+                var crValidToText = crValidTo == DateTime.MaxValue ? "MaxValue" : crValidTo.ToString("O");
 
                 crRows.Add(new[]
                 {
                     (i + 1).ToString(),
                     cr.ValidFrom.ToString("O"),
-                    validToText,
+                    crValidToText,
                     cr.CreatedAt.ToString("O"),
                     cr.EnergySupplierId ?? "<null>",
                     cr.Reason.ToString()
@@ -126,8 +126,10 @@ namespace TimeLine_PoC
                 for (var j = 0; j < sortedEsps.Count; j++)
                 {
                     var esp = sortedEsps[j];
-                    var espValidTo = cr.GetNextValidFrom(esp);
-                    var espValidToText = espValidTo == DateTime.MaxValue ? "MaxValue" : espValidTo.ToString("O");
+                    var espValidToNullable = esp.ValidTo; // property already clips to CR.ValidTo
+                    var espValidToText = espValidToNullable == null
+                        ? "<null>"
+                        : (espValidToNullable.Value == DateTime.MaxValue ? "MaxValue" : espValidToNullable.Value.ToString("O"));
 
                     espIndex++;
                     espRows.Add(new[]
