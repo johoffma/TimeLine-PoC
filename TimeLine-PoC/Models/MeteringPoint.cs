@@ -142,16 +142,37 @@ namespace TimeLine_PoC.Models
 
         public void Apply(MoveInEvent input)
         {
+            // Remove CommercialRelations with ValidFrom > input.ValidityDate while their Reason is
+            // SecondaryMoveIn or ChangeOfSupplier. Stop when no more candidates or when a PrimaryMoveIn is encountered.
+            while (true)
+            {
+                var candidate = GetSortedCommercialRelations().FirstOrDefault(cr => cr.ValidFrom > input.ValidityDate);
+                if (candidate == null)
+                    break;
+
+                if (candidate.Reason == Reason.PrimaryMoveIn)
+                    break;
+
+                if (candidate.Reason == Reason.SecondaryMoveIn || candidate.Reason == Reason.ChangeOfSupplier)
+                {
+                    CRs.Remove(candidate);
+                    continue;
+                }
+
+                // If an unexpected Reason enum is present, stop to avoid accidental removal.
+                break;
+            }
+
+            // Create new CommercialRelation for this MoveIn and add an EnergySupplierPeriod under it.
             var cr = new CommercialRelation(
                 this,
                 input.CreatedAt,
                 input.ValidityDate,
                 input.EnergySupplierId,
-                Reason.PrimaryMoveIn);
+                input.Reason);
 
             CRs.Add(cr);
 
-            // Example: create associated EnergySupplierPeriod and add to CR if desired:
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate);
             cr.EnergySupplierPeriods.Add(esp);
         }

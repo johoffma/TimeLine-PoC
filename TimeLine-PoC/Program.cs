@@ -22,15 +22,30 @@ internal class Program
 
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
-            new DateTime(2024, 1, 10),
+            new DateTime(2024, 1, 1),
             "Supplier1",
             Reason.PrimaryMoveIn
             ));
 
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
-            new DateTime(2024, 2, 1),
+            new DateTime(2024, 2, 2),
             "Supplier1",
+            Reason.SecondaryMoveIn
+            ));
+
+
+        Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
+            "mp1",
+            new DateTime(2024, 2, 1),
+            "Supplier2",
+            Reason.PrimaryMoveIn
+            ));
+
+        Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
+            "mp1",
+            new DateTime(2023, 10, 1),
+            "Supplier3",
             Reason.PrimaryMoveIn
             ));
 
