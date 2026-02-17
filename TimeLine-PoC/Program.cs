@@ -36,6 +36,14 @@ internal class Program
             "Address 1"
             ));
 
+        Visualizer.ApplyAndVisualize(mp1, new UpdateCustomerEvent(
+            "mp1",
+            new DateTime(2024, 1, 15),
+            "Supplier1",
+            null,
+            "Address 2"
+            ));
+
 
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
@@ -43,6 +51,14 @@ internal class Program
             "Supplier1",
             Reason.SecondaryMoveIn,
             "Bente"
+            ));
+
+        Visualizer.ApplyAndVisualize(mp1, new UpdateCustomerEvent(
+            "mp1",
+            new DateTime(2024, 2, 2),
+            "Supplier1",
+            null,
+            "Her bor Bente"
             ));
 
 
