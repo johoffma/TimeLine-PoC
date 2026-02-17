@@ -24,14 +24,16 @@ internal class Program
             "mp1",
             new DateTime(2024, 1, 1),
             "Supplier1",
-            Reason.PrimaryMoveIn
+            Reason.PrimaryMoveIn,
+            "Anne"
             ));
 
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
             new DateTime(2024, 2, 2),
             "Supplier1",
-            Reason.SecondaryMoveIn
+            Reason.SecondaryMoveIn,
+            "Bente"
             ));
 
 
@@ -39,14 +41,16 @@ internal class Program
             "mp1",
             new DateTime(2024, 2, 1),
             "Supplier2",
-            Reason.PrimaryMoveIn
+            Reason.PrimaryMoveIn,
+            "Carsten"
             ));
 
         Visualizer.ApplyAndVisualize(mp1, new MoveInEvent(
             "mp1",
             new DateTime(2023, 10, 1),
             "Supplier3",
-            Reason.PrimaryMoveIn
+            Reason.PrimaryMoveIn,
+            "Dorte"
             ));
 
         /*

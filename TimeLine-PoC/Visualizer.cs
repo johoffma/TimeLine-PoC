@@ -49,8 +49,9 @@ namespace TimeLine_PoC
                     break;
 
                 case MoveInEvent mi:
-                    Console.WriteLine($"  AddressLine    : {mi.EnergySupplierId ?? "<null>"}");
-                    Console.WriteLine($"  Resolution     : {mi.Reason.ToString() ?? "<null>"}");
+                    Console.WriteLine($"  EnergySupplierId: { mi.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Reason          : {mi.Reason.ToString() ?? "<null>"}");
+                    Console.WriteLine($"  Customer        : {mi.Customer ?? "<null>"}");
                     mp.Apply(mi);
                     break;
 
@@ -112,7 +113,8 @@ namespace TimeLine_PoC
 
             // Build EnergySupplierPeriod table (flat view) with reference to parent CR index
             var espRows = new List<string[]>();
-            espRows.Add(new[] { "#", "CR#", "ValidFrom", "ValidTo", "CreatedAt" });
+            // Added Customer and CustomerAddress columns
+            espRows.Add(new[] { "#", "CR#", "ValidFrom", "ValidTo", "CreatedAt", "Customer", "CustomerAddress" });
 
             var espIndex = 0;
             for (var crIndex = 0; crIndex < sortedCr.Count; crIndex++)
@@ -132,13 +134,19 @@ namespace TimeLine_PoC
                         : (espValidToNullable.Value == DateTime.MaxValue ? "MaxValue" : espValidToNullable.Value.ToString("O"));
 
                     espIndex++;
+
+                    var customerText = (esp as dynamic).Customer as string ?? "<null>";
+                    var customerAddressText = (esp as dynamic).CustomerAddress as string ?? "<null>";
+
                     espRows.Add(new[]
                     {
                         espIndex.ToString(),
                         (crIndex + 1).ToString(),
                         esp.ValidFrom.ToString("O"),
                         espValidToText,
-                        esp.CreatedAt.ToString("O")
+                        esp.CreatedAt.ToString("O"),
+                        customerText,
+                        customerAddressText
                     });
                 }
             }

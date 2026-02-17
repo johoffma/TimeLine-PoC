@@ -13,15 +13,17 @@ namespace TimeLine_PoC.Events
             string meteringPointId,
             DateTime validityDate,
             string energySupplierId,
-            Reason reason
-            ) : base(meteringPointId, validityDate)
+            Reason reason,
+            string customer) : base(meteringPointId, validityDate)
         {
             EnergySupplierId = energySupplierId;
             Reason = reason;
+            Customer = customer;
         }
 
         public string EnergySupplierId { get; }
 
         public Reason Reason { get; }
-    }
+        public string Customer { get; }
+        }
 }

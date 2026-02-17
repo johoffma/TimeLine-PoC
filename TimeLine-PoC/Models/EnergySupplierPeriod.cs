@@ -7,12 +7,18 @@ namespace TimeLine_PoC.Models
         public EnergySupplierPeriod(
             CommercialRelation commercialRelation,
             DateTime createdAt,
-            DateTime validFrom) : base(commercialRelation, createdAt)
+            DateTime validFrom,
+            string? customer = null,
+            string? customerAddress = null) : base(commercialRelation, createdAt)
         {
             ValidFrom = validFrom;
+            Customer = customer;    
+            CustomerAddress = customerAddress;
         }
 
         public DateTime ValidFrom { get; }
+        public string? Customer { get; }
+        public string? CustomerAddress { get; } 
 
         // ValidTo is the earlier of:
         // - the next EnergySupplierPeriod.ValidFrom within the same CommercialRelation

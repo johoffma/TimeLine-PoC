@@ -173,7 +173,7 @@ namespace TimeLine_PoC.Models
 
             CRs.Add(cr);
 
-            var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate);
+            var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer);
             cr.EnergySupplierPeriods.Add(esp);
         }
 
