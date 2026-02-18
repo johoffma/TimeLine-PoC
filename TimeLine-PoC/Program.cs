@@ -53,6 +53,10 @@ internal class Program
         if (ev == null) throw new ArgumentNullException(nameof(ev));
 
         Console.Clear();
+        Console.WriteLine("Current periods (ordered by ValidFrom):");
+        mp.PrintPeriods();
+        Console.WriteLine();
+
         Console.WriteLine(new string('=', 80));
         Console.WriteLine($"Applying {ev.GetType().Name} (CreatedAt: {ev.CreatedAt:O})");
         Console.WriteLine($"  MeteringPointId: {ev.MeteringPointId}");
