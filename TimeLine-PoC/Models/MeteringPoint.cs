@@ -132,8 +132,7 @@ namespace TimeLine_PoC.Models
             for (var i = 0; i < sorted.Count; i++)
             {
                 var p = sorted[i];
-                var validTo = (i == sorted.Count - 1) ? DateTime.MaxValue : sorted[i + 1].ValidFrom;
-                var validToText = validTo == DateTime.MaxValue ? "MaxValue" : validTo.ToString("O");
+                var validToText = p.ValidTo is null ? "MaxValue" : p.ValidTo?.ToString("O");
 
                 rows.Add(new[]
                 {
