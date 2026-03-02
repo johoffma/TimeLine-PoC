@@ -171,6 +171,25 @@ namespace TimeLine_PoC.Models
                 input.EnergySupplierId,
                 input.Reason);
 
+            // Assign new CustomerId (nullable GUID) at apply time
+            cr.CustomerId = Guid.NewGuid();
+
+            CRs.Add(cr);
+
+            var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer);
+            cr.EnergySupplierPeriods.Add(esp);
+        }
+
+        public void Apply(ChangeSupplierEvent input)
+        {
+            // Create new CommercialRelation for this MoveIn and add an EnergySupplierPeriod under it.
+            var cr = new CommercialRelation(
+                this,
+                input.CreatedAt,
+                input.ValidityDate,
+                input.EnergySupplierId,
+                Reason.ChangeOfSupplier);
+
             CRs.Add(cr);
 
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer);
@@ -266,9 +285,9 @@ namespace TimeLine_PoC.Models
                 return;
             }
 
-            // Build CR table (use CR.ValidTo property)
+            // Build CR table (use CR.ValidTo property) — added CustomerId column
             var crRows = new List<string[]>();
-            crRows.Add(new[] { "#", "ValidFrom", "ValidTo", "CreatedAt", "EnergySupplierId", "Reason" });
+            crRows.Add(new[] { "#", "ValidFrom", "ValidTo", "CreatedAt", "EnergySupplierId", "Reason", "CustomerId" });
 
             for (var i = 0; i < sortedCr.Count; i++)
             {
@@ -283,7 +302,8 @@ namespace TimeLine_PoC.Models
                     crValidToText,
                     cr.CreatedAt.ToString("O"),
                     cr.EnergySupplierId ?? "<null>",
-                    cr.Reason.ToString()
+                    cr.Reason.ToString(),
+                    cr.CustomerId?.ToString() ?? "<null>"
                 });
             }
 
@@ -314,8 +334,8 @@ namespace TimeLine_PoC.Models
 
                     espIndex++;
 
-                    var customerText = (esp as dynamic).Customer as string ?? "<null>";
-                    var customerAddressText = (esp as dynamic).CustomerAddress as string ?? "<null>";
+                    var customerText = esp.Customer ?? "<null>";
+                    var customerAddressText = esp.CustomerAddress ?? "<null>";
 
                     espRows.Add(new[]
                     {

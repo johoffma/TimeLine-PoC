@@ -22,6 +22,20 @@ namespace TimeLine_PoC.Models
         public string EnergySupplierId { get; }
         public Reason Reason { get; }
 
+        // Backing field for CustomerId
+        private Guid? _customerId;
+
+        // Public property exposes inherited behavior: if this instance has no CustomerId,
+        // walk previous CommercialRelation instances until a value is found (or null).
+        public Guid? CustomerId
+        {
+            get => _customerId ?? ResolveInheritedCustomerId();
+            internal set => _customerId = value;
+        }
+
+        // Internal raw accessor allows other instances to inspect stored value without triggering inheritance logic.
+        internal Guid? RawCustomerId => _customerId;
+
         // Energy supplier periods that belong to this commercial relation
         public List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
 
@@ -62,6 +76,19 @@ namespace TimeLine_PoC.Models
             {
                 return Parent.GetNextValidFrom(this);
             }
+        }
+
+        // Walk previous CommercialRelation instances on the same MeteringPoint to inherit CustomerId.
+        private Guid? ResolveInheritedCustomerId()
+        {
+            var previous = Parent.GetPrevious(this);
+            while (previous != null)
+            {
+                if (previous.RawCustomerId.HasValue)
+                    return previous.RawCustomerId;
+                previous = Parent.GetPrevious(previous);
+            }
+            return null;
         }
     }
 }
