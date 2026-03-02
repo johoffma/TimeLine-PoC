@@ -319,10 +319,7 @@ namespace TimeLine_PoC.Models
             for (var crIndex = 0; crIndex < sortedCr.Count; crIndex++)
             {
                 var cr = sortedCr[crIndex];
-                var sortedEsps = cr.EnergySupplierPeriods
-                    .OrderBy(e => e.ValidFrom)
-                    .ThenBy(e => e.CreatedAt)
-                    .ToList();
+                var sortedEsps = cr.GetSortedEnergySupplierPeriods().ToList();
 
                 for (var j = 0; j < sortedEsps.Count; j++)
                 {
