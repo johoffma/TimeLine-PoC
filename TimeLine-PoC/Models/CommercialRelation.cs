@@ -39,9 +39,14 @@ namespace TimeLine_PoC.Models
         // Energy supplier periods that belong to this commercial relation
         public List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
 
-        // Sorted view: by ValidFrom ascending, tie-breaker: CreatedAt ascending
+        // Sorted view: only include ESPs that start before the CR.ValidTo.
+        // This prevents navigating to ESPs that lie entirely beyond the CommercialRelation range.
         internal List<EnergySupplierPeriod> GetSortedEnergySupplierPeriods()
-            => EnergySupplierPeriods.OrderBy(p => p.ValidFrom).ThenBy(p => p.CreatedAt).ToList();
+            => EnergySupplierPeriods
+                .Where(e => e.ValidFrom < this.ValidTo)                      // exclude ESPs starting at/after CR.ValidTo
+                .OrderBy(p => p.ValidFrom)
+                .ThenByDescending(p => p.CreatedAt)                         // newest created wins on tie
+                .ToList();
 
         public EnergySupplierPeriod? GetPrevious(EnergySupplierPeriod current)
         {
@@ -59,12 +64,14 @@ namespace TimeLine_PoC.Models
             return sorted[idx + 1];
         }
 
-        // Next ValidFrom for EnergySupplierPeriod siblings
+        // Next ValidFrom for EnergySupplierPeriod siblings.
+        // If the current period is not part of the filtered set (e.g. starts after CR.ValidTo),
+        // consider there is no next -> return DateTime.MaxValue (i.e. no successor within CR).
         public DateTime GetNextValidFrom(EnergySupplierPeriod current)
         {
             var sorted = GetSortedEnergySupplierPeriods();
             var idx = sorted.IndexOf(current);
-            if (idx == -1) throw new InvalidOperationException("EnergySupplierPeriod not found.");
+            if (idx == -1) return DateTime.MaxValue;
             if (idx == sorted.Count - 1) return DateTime.MaxValue;
             return sorted[idx + 1].ValidFrom;
         }
