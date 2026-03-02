@@ -8,9 +8,9 @@ using TimeLine_PoC.Models;
 
 namespace TimeLine_PoC
 {
-    public static class Visualizer
+    public class Scenario
     {
-        public static void ApplyAndVisualize(MeteringPoint mp, Event ev)
+        public void ApplyAndVisualize(MeteringPoint mp, Event ev)
         {
             if (mp == null) throw new ArgumentNullException(nameof(mp));
             if (ev == null) throw new ArgumentNullException(nameof(ev));
@@ -52,20 +52,6 @@ namespace TimeLine_PoC
                     mp.Apply(co);
                     break;
 
-                case MoveInEvent mi:
-                    Console.WriteLine($"  EnergySupplierId: { mi.EnergySupplierId ?? "<null>"}");
-                    Console.WriteLine($"  Reason          : {mi.Reason.ToString() ?? "<null>"}");
-                    Console.WriteLine($"  Customer        : {mi.Customer ?? "<null>"}");
-                    mp.Apply(mi);
-                    break;
-
-                case UpdateCustomerEvent uc:
-                    Console.WriteLine($"  EnergySupplierId: {uc.EnergySupplierId ?? "<null>"}");
-                    Console.WriteLine($"  Customer        : {uc.Customer ?? "<null>"}");
-                    Console.WriteLine($"  CustomerAddress : {uc.CustomerAddress ?? "<null>"}");
-                    mp.Apply(uc);
-                    break;
-
                 default:
                     throw new InvalidOperationException($"Unsupported event type: {ev.GetType().FullName}");
             }
@@ -74,7 +60,6 @@ namespace TimeLine_PoC
             Console.WriteLine();
             Console.WriteLine("Current periods (ordered by ValidFrom):");
             mp.PrintPeriods();
-
             Console.ReadLine();
         }
     }
