@@ -181,10 +181,10 @@ namespace TimeLine_PoC.Models
         { 
             // Find the CommercialRelation that is active at input.ValidityDate and update it with a new EnergySupplierPeriod.
             var cr = GetSortedCommercialRelations()
-                .LastOrDefault(cr => cr.ValidFrom <= input.ValidityDate);
+                .LastOrDefault(cr => cr.ValidFrom <= input.ValidityDate && input.ValidityDate < cr.ValidTo && cr.EnergySupplierId == input.EnergySupplierId);
             if (cr == null)
             {
-                throw new InvalidOperationException("No active CommercialRelation found for the given ValidityDate.");
+                throw new InvalidOperationException("No active CommercialRelation found for the given input.");
             }
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer, customerAddress: input.CustomerAddress);
             cr.EnergySupplierPeriods.Add(esp);
