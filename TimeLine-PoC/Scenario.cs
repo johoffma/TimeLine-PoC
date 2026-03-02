@@ -52,6 +52,25 @@ namespace TimeLine_PoC
                     mp.Apply(co);
                     break;
 
+                case MoveInEvent mi:
+                    Console.WriteLine($"  EnergySupplierId: {mi.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Reason          : {mi.Reason.ToString() ?? "<null>"}");
+                    Console.WriteLine($"  Customer        : {mi.Customer ?? "<null>"}");
+                    mp.Apply(mi);
+                    break;
+
+                case UpdateCustomerEvent uc:
+                    Console.WriteLine($"  EnergySupplierId: {uc.EnergySupplierId ?? "<null>"}");
+                    Console.WriteLine($"  Customer        : {uc.Customer ?? "<null>"}");
+                    Console.WriteLine($"  CustomerAddress : {uc.CustomerAddress ?? "<null>"}");
+                    mp.Apply(uc);
+                    break;
+
+                case ChangeSupplierEvent cs:
+                    Console.WriteLine($"  EnergySupplierId: {cs.EnergySupplierId ?? "<null>"}");
+                    mp.Apply(cs);
+                    break;
+
                 default:
                     throw new InvalidOperationException($"Unsupported event type: {ev.GetType().FullName}");
             }

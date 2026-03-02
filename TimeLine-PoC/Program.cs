@@ -10,7 +10,8 @@ internal class Program
     {
         Console.WriteLine("Hello, World!");
         //new Scenario_MPP().Execute();
-        new Scenario_MoveIn().Execute();
+        //new Scenario_MoveIn().Execute();
+        new Scenario_MoveIn_ChangeSupplier().Execute();
 
     }
 }
