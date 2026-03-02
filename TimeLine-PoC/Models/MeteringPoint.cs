@@ -177,7 +177,7 @@ namespace TimeLine_PoC.Models
             CRs.Add(cr);
 
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer);
-            cr.EnergySupplierPeriods.Add(esp);
+            cr.AddEnergySupplierPeriod(esp);
         }
 
         public void Apply(ChangeSupplierEvent input)
@@ -193,7 +193,7 @@ namespace TimeLine_PoC.Models
             CRs.Add(cr);
 
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer);
-            cr.EnergySupplierPeriods.Add(esp);
+            cr.AddEnergySupplierPeriod(esp);
         }
 
         public void Apply(UpdateCustomerEvent input)
@@ -206,7 +206,7 @@ namespace TimeLine_PoC.Models
                 throw new InvalidOperationException("No active CommercialRelation found for the given input.");
             }
             var esp = new EnergySupplierPeriod(cr, input.CreatedAt, input.ValidityDate, customer: input.Customer, customerAddress: input.CustomerAddress);
-            cr.EnergySupplierPeriods.Add(esp);
+            cr.AddEnergySupplierPeriod(esp);
         }
 
         // Prints periods in chronological order (by ValidFrom) to Console.

@@ -37,7 +37,7 @@ namespace TimeLine_PoC.Models
         internal Guid? RawCustomerId => _customerId;
 
         // Energy supplier periods that belong to this commercial relation
-        public List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
+        private List<EnergySupplierPeriod> EnergySupplierPeriods { get; }
 
         // Sorted view: only include ESPs that start before the CR.ValidTo.
         // This prevents navigating to ESPs that lie entirely beyond the CommercialRelation range.
@@ -47,6 +47,13 @@ namespace TimeLine_PoC.Models
                 .OrderBy(p => p.ValidFrom)
                 .ThenByDescending(p => p.CreatedAt)                         // newest created wins on tie
                 .ToList();
+
+        public void AddEnergySupplierPeriod(EnergySupplierPeriod period)
+        {
+            if (period == null) throw new ArgumentNullException(nameof(period));
+            if (period.Parent != this) throw new ArgumentException("EnergySupplierPeriod must belong to this CommercialRelation.", nameof(period));
+            EnergySupplierPeriods.Add(period);
+        }
 
         public EnergySupplierPeriod? GetPrevious(EnergySupplierPeriod current)
         {
